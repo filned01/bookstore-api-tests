@@ -1,0 +1,8 @@
+{
+  "id": 9001,
+  "title": "Synthetic Fixture Book",
+  "description": "A fabricated catalog entry used only by automated tests.",
+  "pageCount": 128,
+  "excerpt": "Opening lines for a fake book.",
+  "publishDate": "2026-01-15T00:00:00"
+}

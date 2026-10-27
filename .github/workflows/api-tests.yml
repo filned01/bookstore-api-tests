@@ -1,0 +1,38 @@
+name: API tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Bookstore API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run the API tests
+        env:
+          BASE_URL: https://fakerestapi.azurewebsites.net
+        run: pytest
+
+      - name: Upload the HTML report and JUnit results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bookstore-api-report
+          path: reports/
+          retention-days: 14
