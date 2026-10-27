@@ -4,6 +4,8 @@ import requests
 from bookstore_api.config import Settings
 from bookstore_api.http_client import HttpClient
 
+pytestmark = pytest.mark.unit
+
 
 class _Response:
     def __init__(self, status_code: int, text: str = "") -> None:

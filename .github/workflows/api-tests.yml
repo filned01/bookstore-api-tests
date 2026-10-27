@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    name: Bookstore API
+  unit:
+    name: Unit tests and lint
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -20,19 +20,52 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint Python files
+        run: ruff check .
+
+      - name: Run network-independent unit tests
+        run: pytest -m unit
+
+      - name: Upload unit test reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: bookstore-unit-test-report
+          path: reports/
+          retention-days: 14
+
+  api:
+    name: Live API tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run the API tests
+      - name: Run the bookstore API tests
         env:
           BASE_URL: https://fakerestapi.azurewebsites.net
-        run: pytest
+        run: pytest -m "books or authors"
 
-      - name: Upload the HTML report and JUnit results
+      - name: Upload API test reports
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: bookstore-api-report
+          name: bookstore-api-test-report
           path: reports/
           retention-days: 14

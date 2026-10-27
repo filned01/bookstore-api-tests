@@ -19,7 +19,7 @@ Python 3.12 or newer is required. From this folder:
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
 ## Run the tests
@@ -31,10 +31,15 @@ pytest
 Useful variants:
 
 ```powershell
+ruff check .
+pytest -m unit
+pytest -m "books or authors"
 pytest -m books
 pytest -m authors
 pytest tests/books/test_get_book.py
 ```
+
+`pytest -m unit` runs only network-independent tests. The Books and Authors tests call the public API.
 
 Point the suite at another host with the same routes:
 
@@ -100,7 +105,7 @@ Author names in `requests/author.json` are the synthetic values `Fake` and `Pers
 
 ## CI
 
-`.github/workflows/api-tests.yml` installs the requirements, runs `pytest`, and uploads `reports/` as a build artifact. It runs on push to `main` or `master`, on pull requests, and when started by hand. This folder is a local git repository. The workflow runs after the repository is on GitHub.
+`.github/workflows/api-tests.yml` runs Ruff and the network-independent unit tests in one job, and the live Books and Authors API tests in a separate job. It uploads test reports as build artifacts and runs on push to `main` or `master`, on pull requests, and when started by hand.
 
 ## Assumptions
 
@@ -108,4 +113,4 @@ Author names in `requests/author.json` are the synthetic values `Fake` and `Pers
 - The book catalog stays at 200 items, with book `1` titled `Book 1` and book `200` titled `Book 200`.
 - Author `1` stays `First Name 1` / `Last Name 1` on book `1`.
 - Success for create and update is HTTP 200, which is what this API documents, rather than 201 or 204.
-- The suite needs a network path to the public site. An outage fails the API tests. The unit tests do not call the network.
+- The Books and Authors tests need a network path to the public API; an outage can fail those tests. The unit tests do not call the network and can run independently with `pytest -m unit`.
