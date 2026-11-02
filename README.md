@@ -41,6 +41,27 @@ pytest tests/books/test_get_book.py
 
 `pytest -m unit` runs only network-independent tests. The Books and Authors tests call the public API.
 
+## Send one API request manually
+
+You can run one Books or Authors request without running pytest. From this project folder:
+
+```powershell
+python -m bookstore_api books list
+python -m bookstore_api books get 1
+python -m bookstore_api books create --data-file requests/book.json
+python -m bookstore_api books update 1 --data-file requests/book.json
+python -m bookstore_api books delete 1
+python -m bookstore_api authors get 1
+```
+
+For create or update, pass a JSON file with `--data-file` or provide JSON directly with `--data`:
+
+```powershell
+python -m bookstore_api books create --data '{"id":9001,"title":"Example book","pageCount":120}'
+```
+
+The command prints the HTTP status and response body. It returns a nonzero exit code for HTTP errors or request failures. It sends exactly one operation per invocation; it does not run test assertions. Like the test suite, it targets the public FakeRestAPI by default and can use `BASE_URL` and `API_TIMEOUT_SECONDS` environment variables. The sample API does not persist create, update, or delete operations.
+
 Point the suite at another host with the same routes:
 
 ```powershell
@@ -64,7 +85,9 @@ Open `reports/report.html` in a browser. The copy in this folder is from the las
 bookstore-api-tests/
 ├── bookstore_api/
 │   ├── config.py         Base URL and timeout
+│   ├── cli.py            Run one API request from the command line
 │   ├── http_client.py    HTTP transport, logging, safe-read retry
+│   ├── __main__.py       Enables python -m bookstore_api
 │   ├── resources.py      Books and Authors CRUD
 │   └── payloads.py       Loads JSON bodies and applies test values
 ├── requests/
